@@ -1,0 +1,12 @@
+services:
+  gripground-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gripground:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - GRIPGROUND_MODEL_PATH=/models/best.pt
+    volumes:
+      - ./artifacts/checkpoints:/models:ro

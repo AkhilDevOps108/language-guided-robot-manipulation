@@ -1,0 +1,11 @@
+numpy==2.2.6
+pybullet==3.2.7
+gymnasium==1.2.0
+Pillow==11.3.0
+mlflow==3.3.2
+fastapi==0.116.1
+pydantic==2.11.7
+uvicorn==0.35.0
+matplotlib==3.10.5
+pytest==8.4.1
+httpx==0.28.1

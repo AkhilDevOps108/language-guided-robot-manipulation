@@ -1,0 +1,22 @@
+{
+  "environment": {
+    "simulator": "pybullet",
+    "task": "pick_place_cube",
+    "image_width": 64,
+    "image_height": 64,
+    "max_steps": 120
+  },
+  "dataset": {
+    "episodes": 30,
+    "split": {
+      "train": 0.7,
+      "val": 0.15,
+      "test": 0.15
+    }
+  },
+  "training": {
+    "epochs": 8,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  }
+}

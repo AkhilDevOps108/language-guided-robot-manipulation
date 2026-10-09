@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gripground"
+version = "0.1.0"
+description = "Language-guided robotic manipulation with failure-aware learning"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "GripGround Contributors" }]
+dependencies = [
+  "numpy==2.2.6",
+  "pybullet==3.2.7",
+  "gymnasium==1.2.0",
+  "Pillow==11.3.0",
+  "mlflow==3.3.2",
+  "fastapi==0.116.1",
+  "pydantic==2.11.7",
+  "uvicorn==0.35.0",
+  "matplotlib==3.10.5",
+  "httpx==0.28.1",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
