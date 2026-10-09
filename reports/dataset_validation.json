@@ -1,0 +1,8 @@
+{
+  "dataset_dir": "/tmp/pytest-of-akhil/pytest-10/test_validate_rejects_invalid_0",
+  "episode_count": 1,
+  "valid": false,
+  "errors": [
+    "episode_00000.npz: actions contain non-finite values"
+  ]
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import os
 import time
+from contextlib import asynccontextmanager
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -16,28 +17,32 @@ from gripground.data.dataset import tokenize_instruction
 from gripground.models.policy import LoadedPolicy, load_policy_checkpoint
 from gripground.serving.schemas import PredictRequest, PredictResponse
 
-app = FastAPI(title="GripGround Inference API", version="0.1.0")
 _LOADED: LoadedPolicy | None = None
 _MODEL_PATH = Path(os.environ.get("GRIPGROUND_MODEL_PATH", "artifacts/checkpoints/best.pt"))
 
 
-def _decode_image(image_base64: str) -> np.ndarray:
-    try:
-        raw = base64.b64decode(image_base64)
-        with Image.open(BytesIO(raw)) as img:
-            img = img.convert("RGB").resize((64, 64))
-            return np.asarray(img, dtype=np.uint8)
-    except Exception as exc:
-        raise HTTPException(status_code=422, detail=f"Invalid image payload: {exc}") from exc
-
-
-@app.on_event("startup")
-def startup() -> None:
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     global _LOADED
     if not _MODEL_PATH.exists():
         raise RuntimeError(f"Model checkpoint not found: {_MODEL_PATH}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     _LOADED = load_policy_checkpoint(str(_MODEL_PATH), device)
+    yield
+    _LOADED = None
+
+
+app = FastAPI(title="GripGround Inference API", version="0.1.0", lifespan=lifespan)
+
+
+def _decode_image(image_base64: str) -> np.ndarray:
+    try:
+        raw = base64.b64decode(image_base64, validate=True)
+        with Image.open(BytesIO(raw)) as img:
+            img = img.convert("RGB").resize((64, 64))
+            return np.asarray(img, dtype=np.uint8)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"Invalid image payload: {exc}") from exc
 
 
 @app.get("/health")

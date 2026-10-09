@@ -22,11 +22,16 @@ def validate_episode(path: Path) -> list[str]:
     actions = arr["actions"]
     if images.ndim != 4 or images.shape[-1] != 3:
         errors.append(f"{path.name}: images shape must be [T,H,W,3], got {images.shape}")
-    t = actions.shape[0]
-    if states.shape[0] != t or images.shape[0] != t:
-        errors.append(f"{path.name}: inconsistent sequence length across images/states/actions")
+    if states.ndim != 2 or states.shape[1] != 12:
+        errors.append(f"{path.name}: states shape must be [T,12], got {states.shape}")
     if actions.ndim != 2 or actions.shape[1] != 4:
         errors.append(f"{path.name}: action shape must be [T,4], got {actions.shape}")
+    t = actions.shape[0] if actions.ndim > 0 else -1
+    if states.ndim > 0 and states.shape[0] != t or images.ndim > 0 and images.shape[0] != t:
+        errors.append(f"{path.name}: inconsistent sequence length across images/states/actions")
+    for key in ("rewards", "dones"):
+        if arr[key].ndim != 1 or arr[key].shape[0] != t:
+            errors.append(f"{path.name}: {key} must have shape [T]")
     if not np.isfinite(images).all():
         errors.append(f"{path.name}: images contain non-finite values")
     if not np.isfinite(states).all():
@@ -51,6 +56,10 @@ def validate_dataset(dataset_dir: Path) -> dict[str, object]:
         split_union.extend(manifest["splits"].get(split, []))
     if len(split_union) != len(set(split_union)):
         errors.append("Train/validation/test leakage detected from overlapping episode IDs")
+    if set(split_union) != set(ids):
+        errors.append("Manifest splits do not cover exactly the episode files in the dataset")
+    if manifest.get("episode_count") != len(files):
+        errors.append("Manifest episode_count does not match the number of episode files")
     for path in files:
         errors.extend(validate_episode(path))
     report = {
@@ -82,4 +91,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

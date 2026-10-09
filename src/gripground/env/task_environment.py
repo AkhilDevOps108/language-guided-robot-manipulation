@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import string
 from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
 import pybullet as p
 import pybullet_data
+import gymnasium as gym
+from gymnasium import spaces
 
 from gripground.config import EnvConfig
 from gripground.env.simulator_adapter import SimulatorAdapter, StepResult
@@ -21,11 +24,32 @@ class SceneObjects:
     arm_id: int
 
 
-class PickPlacePyBulletEnv(SimulatorAdapter):
+class PickPlacePyBulletEnv(gym.Env, SimulatorAdapter):
     """Physics-based pick-and-place with a Cartesian parallel-jaw gripper."""
 
     def __init__(self, config: EnvConfig | None = None):
+        super().__init__()
         self.config = config or EnvConfig()
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float32)
+        self.observation_space = spaces.Dict(
+            {
+                "rgb": spaces.Box(
+                    low=0,
+                    high=255,
+                    shape=(self.config.image_height, self.config.image_width, 3),
+                    dtype=np.uint8,
+                ),
+                "state": spaces.Box(low=-1.0, high=1.0, shape=(12,), dtype=np.float32),
+                "instruction": spaces.Text(
+                    min_length=1,
+                    max_length=256,
+                    charset=string.ascii_letters + string.digits + " .,!?'-",
+                ),
+                "cube_pos": spaces.Box(low=-1.0, high=1.0, shape=(3,), dtype=np.float32),
+                "target_pos": spaces.Box(low=-1.0, high=1.0, shape=(3,), dtype=np.float32),
+                "ee_pos": spaces.Box(low=-1.0, high=1.0, shape=(3,), dtype=np.float32),
+            }
+        )
         self.client = p.connect(p.GUI if self.config.render else p.DIRECT)
         p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.client)
         self.scene: SceneObjects | None = None
@@ -35,6 +59,7 @@ class PickPlacePyBulletEnv(SimulatorAdapter):
         self._grasp_cid: int | None = None
         self._phase = 0
         self._ee_pos = np.array([0.43, 0.0, 0.82], dtype=np.float32)
+        self._rng = np.random.default_rng()
         self._build_scene()
 
     def action_space_shape(self) -> tuple[int, ...]:
@@ -43,10 +68,19 @@ class PickPlacePyBulletEnv(SimulatorAdapter):
     def close(self) -> None:
         p.disconnect(physicsClientId=self.client)
 
-    def reset(self, seed: int | None = None, instruction: str | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
-        if seed is not None:
-            np.random.seed(seed)
-        self._instruction = instruction or "move the red cube to the green target"
+    def reset(
+        self,
+        seed: int | None = None,
+        options: dict[str, Any] | None = None,
+        instruction: str | None = None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        super().reset(seed=seed)
+        self._rng = self.np_random
+        self._instruction = (
+            instruction
+            or (options or {}).get("instruction")
+            or "move the red cube to the green target"
+        )
         self._step_count = 0
         self._gripper_closed = False
         self._grasp_cid = None
@@ -69,8 +103,8 @@ class PickPlacePyBulletEnv(SimulatorAdapter):
         )
 
         cube_pos = [
-            0.55 + np.random.uniform(-0.07, 0.07),
-            np.random.uniform(-0.12, 0.12),
+            0.55 + self._rng.uniform(-0.07, 0.07),
+            self._rng.uniform(-0.12, 0.12),
             0.65,
         ]
         cube_collision = p.createCollisionShape(
@@ -90,7 +124,7 @@ class PickPlacePyBulletEnv(SimulatorAdapter):
             physicsClientId=self.client,
         )
 
-        target_pos = [0.69 + np.random.uniform(-0.03, 0.03), np.random.uniform(-0.10, 0.10), 0.63]
+        target_pos = [0.69 + self._rng.uniform(-0.03, 0.03), self._rng.uniform(-0.10, 0.10), 0.63]
         target_collision = p.createCollisionShape(
             p.GEOM_CYLINDER, radius=self.config.target_radius, height=0.002, physicsClientId=self.client
         )
@@ -176,23 +210,39 @@ class PickPlacePyBulletEnv(SimulatorAdapter):
     def step(self, action: np.ndarray) -> StepResult:
         if self.scene is None:
             raise RuntimeError("Environment scene is not initialized")
+        try:
+            action = np.asarray(action, dtype=np.float32)
+        except (TypeError, ValueError):
+            action = np.array([], dtype=np.float32)
         if action.shape != (4,) or not np.isfinite(action).all():
             return StepResult(
                 observation=self._get_observation(),
                 reward=-1.0,
-                done=True,
+                terminated=True,
                 truncated=False,
                 info={"failure_category": "invalid_action"},
             )
 
         self._step_count += 1
         action = np.clip(action.astype(np.float32), -1.0, 1.0)
+        cube_pos = np.asarray(
+            p.getBasePositionAndOrientation(self.scene.cube_id, physicsClientId=self.client)[0],
+            dtype=np.float32,
+        )
+        requested_position = self._ee_pos + action[:3] * 0.03
+        if self._grasp_cid is None and self._phase == 0:
+            requested_position[2] = min(
+                requested_position[2],
+                max(0.66, float(cube_pos[2]) + 0.05),
+            )
         self._ee_pos = np.clip(
-            self._ee_pos + action[:3] * 0.03,
+            requested_position,
             np.array([0.34, -0.32, 0.66], dtype=np.float32),
             np.array([0.78, 0.32, 0.98], dtype=np.float32),
         )
-        close_cmd = bool(action[3] > 0)
+        close_requested = bool(action[3] > 0)
+        within_grasp_range = float(np.linalg.norm(self._ee_pos - cube_pos)) <= 0.055
+        close_cmd = close_requested and (self._gripper_closed or within_grasp_range)
         if close_cmd != self._gripper_closed:
             self._gripper_closed = close_cmd
             if close_cmd:
@@ -218,18 +268,21 @@ class PickPlacePyBulletEnv(SimulatorAdapter):
         obs = self._get_observation()
         reward, success = self._reward_success(obs)
         truncated = self._step_count >= self.config.max_steps
-        failure_category = "none" if success else ("timeout" if truncated else None)
+        failure_category = "none" if success else None
         if not success and obs["cube_pos"][2] < 0.58:
             failure_category = "dropped_object"
+        elif truncated:
+            failure_category = "grasp_failure" if self._phase == 0 else "placement_failure"
         return StepResult(
             observation=obs,
             reward=reward,
-            done=success,
+            terminated=success,
             truncated=truncated,
             info={
                 "success": success,
                 "step_count": self._step_count,
                 "failure_category": failure_category,
+                "grasp_interlock_blocked": close_requested and not close_cmd,
             },
         )
 

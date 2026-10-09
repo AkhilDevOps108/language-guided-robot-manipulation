@@ -10,13 +10,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends g++ && rm -rf /
 
 RUN adduser --disabled-password --gecos '' appuser
 
-COPY requirements.txt pyproject.toml README.md /app/
-COPY src /app/src
+COPY requirements.txt /app/requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install --index-url https://download.pytorch.org/whl/cpu torch==2.7.1 && \
-    pip install -r requirements.txt && \
-    pip install -e .
+    pip install -r requirements.txt
+
+COPY pyproject.toml README.md /app/
+COPY src /app/src
+
+RUN pip install -e . --no-deps
 
 USER appuser
 

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
+import mlflow
 import numpy as np
 import torch
 
@@ -17,10 +18,18 @@ from gripground.env.task_environment import PickPlacePyBulletEnv
 from gripground.evaluation.error_analysis import save_failure_analysis
 from gripground.evaluation.metrics import EpisodeResult, action_mse, summarize_episode_results
 from gripground.models.policy import RandomBaselinePolicy, load_policy_checkpoint
+from gripground.tracking.mlflow_utils import log_dict_artifact, start_run
 from gripground.utils.reproducibility import set_global_seed
 
 
-def run_policy_episode(env: PickPlacePyBulletEnv, policy: Any, seed: int, max_steps: int, device: torch.device | None = None) -> EpisodeResult:
+def run_policy_episode(
+    env: PickPlacePyBulletEnv,
+    policy: Any,
+    seed: int,
+    max_steps: int,
+    device: torch.device | None = None,
+    trajectory: list[dict[str, Any]] | None = None,
+) -> EpisodeResult:
     obs, _ = env.reset(seed=seed, instruction="move the red cube to the green target")
     total_latency_ms = 0.0
     final_failure = "timeout"
@@ -35,6 +44,18 @@ def run_policy_episode(env: PickPlacePyBulletEnv, policy: Any, seed: int, max_st
         t1 = time.perf_counter()
         total_latency_ms += (t1 - t0) * 1000.0
         result = env.step(action)
+        if trajectory is not None:
+            trajectory.append(
+                {
+                    "step": step,
+                    "state": obs["state"].tolist(),
+                    "action": action.tolist(),
+                    "reward": result.reward,
+                    "cube_pos": obs["cube_pos"].tolist(),
+                    "target_pos": obs["target_pos"].tolist(),
+                    "failure_category": result.info.get("failure_category"),
+                }
+            )
         obs = result.observation
         if result.done or result.truncated:
             success = bool(result.info.get("success", False))
@@ -84,10 +105,39 @@ def main() -> None:
     env = PickPlacePyBulletEnv(EnvConfig(max_steps=120))
     baseline_results = []
     trained_results = []
+    failed_trajectories: list[dict[str, Any]] = []
     for i in range(cfg.episodes):
         seed = cfg.seed + i
-        baseline_results.append(run_policy_episode(env, baseline, seed=seed, max_steps=120))
-        trained_results.append(run_policy_episode(env, loaded_policy, seed=seed, max_steps=120))
+        baseline_trajectory: list[dict[str, Any]] = []
+        baseline_result = run_policy_episode(
+            env, baseline, seed=seed, max_steps=120, trajectory=baseline_trajectory
+        )
+        baseline_results.append(baseline_result)
+        if not baseline_result.success:
+            failed_trajectories.append(
+                {
+                    "policy": "random_baseline",
+                    "seed": seed,
+                    "steps": baseline_result.steps,
+                    "failure_category": baseline_result.failure_category,
+                    "trajectory": baseline_trajectory,
+                }
+            )
+        trained_trajectory: list[dict[str, Any]] = []
+        trained_result = run_policy_episode(
+            env, loaded_policy, seed=seed, max_steps=120, trajectory=trained_trajectory
+        )
+        trained_results.append(trained_result)
+        if not trained_result.success:
+            failed_trajectories.append(
+                {
+                    "policy": "trained_policy",
+                    "seed": seed,
+                    "steps": trained_result.steps,
+                    "failure_category": trained_result.failure_category,
+                    "trajectory": trained_trajectory,
+                }
+            )
     env.close()
 
     baseline_summary = summarize_episode_results(baseline_results)
@@ -105,6 +155,8 @@ def main() -> None:
         "baseline_policy": baseline_summary,
         "trained_policy": trained_summary,
         "action_prediction_mse_on_test_split": mse,
+        "failed_trajectory_count": len(failed_trajectories),
+        "failed_trajectories_path": str(args.reports_dir / "failed_trajectories.json"),
         "known_limitations": [
             "Action-space model is continuous and clipped in [-1, 1].",
             "Evaluation uses a single simulated task family and not physical robot deployment.",
@@ -112,6 +164,8 @@ def main() -> None:
     }
     with (args.reports_dir / "evaluation_summary.json").open("w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
+    with (args.reports_dir / "failed_trajectories.json").open("w", encoding="utf-8") as f:
+        json.dump(failed_trajectories, f, indent=2)
 
     labels = ["Baseline", "Trained"]
     values = [baseline_summary["success_rate"], trained_summary["success_rate"]]
@@ -127,9 +181,33 @@ def main() -> None:
     plt.close(fig)
 
     save_failure_analysis(args.reports_dir, summary)
+    with start_run("file:./artifacts/mlruns", "gripground", "evaluate_policy"):
+        mlflow.log_params(
+            {
+                "seed": cfg.seed,
+                "evaluation_episodes": cfg.episodes,
+                "dataset_id": manifest["dataset_hash"],
+                "checkpoint": str(args.checkpoint),
+                "baseline": "random_action",
+            }
+        )
+        mlflow.log_metrics(
+            {
+                "baseline_success_rate": baseline_summary["success_rate"],
+                "trained_success_rate": trained_summary["success_rate"],
+                "baseline_failure_rate": baseline_summary["failure_rate"],
+                "trained_failure_rate": trained_summary["failure_rate"],
+                "trained_avg_steps": trained_summary["avg_steps"],
+                "trained_inference_latency_ms": trained_summary["avg_inference_latency_ms"],
+                "test_action_mse": mse if mse is not None else float("nan"),
+            }
+        )
+        log_dict_artifact(summary, "evaluation_summary.json")
+        mlflow.log_artifact(str(args.reports_dir / "failed_trajectories.json"), "diagnostics")
+        mlflow.log_artifact(str(args.reports_dir / "baseline_vs_trained.png"), "plots")
+        mlflow.log_artifact(str(args.reports_dir / "failure_analysis.json"), "reports")
     print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":
     main()
-

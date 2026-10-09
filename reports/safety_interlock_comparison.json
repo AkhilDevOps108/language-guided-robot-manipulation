@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-09T13:44:30.346685+00:00",
+  "comparison_type": "descriptive_not_controlled",
+  "before": {
+    "source": "reports/safety_trial/evaluation_summary.json",
+    "dataset_identifier": "30ece70f470ecc141c4951de9c6f7a637375c9908dea2183acf81853780470da",
+    "evaluation_episodes": 30,
+    "seed": 123,
+    "checkpoint_path": "artifacts/checkpoints/best.pt",
+    "trained_success_rate": 0.8666666666666667,
+    "baseline_success_rate": 0.03333333333333333
+  },
+  "after": {
+    "source": "reports/safety_trial2/evaluation_summary.json",
+    "dataset_identifier": "15c7989e95e7d9fbdcb9bbdb0a86c7bc085340bc06d01b280f95932c95c50c75",
+    "evaluation_episodes": 30,
+    "seed": 123,
+    "checkpoint_path": "artifacts/checkpoints/best.pt",
+    "trained_success_rate": 1.0,
+    "baseline_success_rate": 0.03333333333333333
+  },
+  "comparison": {
+    "trained_success_rate_delta": 0.1333333333333333,
+    "same_dataset": false,
+    "same_evaluation_episodes_and_seed": true
+  },
+  "interpretation": "The observed rates are not an isolated estimate of the safety interlock effect: the dataset identifiers differ, and the reports do not fingerprint checkpoint weights. Treat the difference as descriptive; a causal comparison requires the same dataset, checkpoint, environment settings, and evaluation seeds with only the interlock changed."
+}

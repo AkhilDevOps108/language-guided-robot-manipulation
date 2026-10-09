@@ -1,0 +1,837 @@
+{
+  "created_at": "2026-10-09T13:28:45.780338+00:00",
+  "schema_version": "1.0.0",
+  "data_source": "simulated_pybullet",
+  "simulator": "pybullet",
+  "episode_count": 90,
+  "split_by": "episode",
+  "preprocessing": {
+    "image_height": 64,
+    "image_width": 64,
+    "action_clip": [
+      -1.0,
+      1.0
+    ]
+  },
+  "splits": {
+    "train": [
+      "episode_00000",
+      "episode_00001",
+      "episode_00002",
+      "episode_00003",
+      "episode_00004",
+      "episode_00005",
+      "episode_00006",
+      "episode_00007",
+      "episode_00008",
+      "episode_00009",
+      "episode_00010",
+      "episode_00011",
+      "episode_00012",
+      "episode_00013",
+      "episode_00014",
+      "episode_00015",
+      "episode_00016",
+      "episode_00017",
+      "episode_00018",
+      "episode_00019",
+      "episode_00020",
+      "episode_00021",
+      "episode_00022",
+      "episode_00023",
+      "episode_00024",
+      "episode_00025",
+      "episode_00026",
+      "episode_00027",
+      "episode_00028",
+      "episode_00029",
+      "episode_00030",
+      "episode_00031",
+      "episode_00032",
+      "episode_00033",
+      "episode_00034",
+      "episode_00035",
+      "episode_00036",
+      "episode_00037",
+      "episode_00038",
+      "episode_00039",
+      "episode_00040",
+      "episode_00041",
+      "episode_00042",
+      "episode_00043",
+      "episode_00044",
+      "episode_00045",
+      "episode_00046",
+      "episode_00047",
+      "episode_00048",
+      "episode_00049",
+      "episode_00050",
+      "episode_00051",
+      "episode_00052",
+      "episode_00053",
+      "episode_00054",
+      "episode_00055",
+      "episode_00056",
+      "episode_00057",
+      "episode_00058",
+      "episode_00059",
+      "episode_00060",
+      "episode_00061"
+    ],
+    "val": [
+      "episode_00062",
+      "episode_00063",
+      "episode_00064",
+      "episode_00065",
+      "episode_00066",
+      "episode_00067",
+      "episode_00068",
+      "episode_00069",
+      "episode_00070",
+      "episode_00071",
+      "episode_00072",
+      "episode_00073",
+      "episode_00074"
+    ],
+    "test": [
+      "episode_00075",
+      "episode_00076",
+      "episode_00077",
+      "episode_00078",
+      "episode_00079",
+      "episode_00080",
+      "episode_00081",
+      "episode_00082",
+      "episode_00083",
+      "episode_00084",
+      "episode_00085",
+      "episode_00086",
+      "episode_00087",
+      "episode_00088",
+      "episode_00089"
+    ]
+  },
+  "dataset_hash": "70a0c34f14d8202f4e64a31240d34c3c04ecb1ce2f06bba3719fea7ec291de69",
+  "episodes": [
+    {
+      "episode_id": "episode_00000",
+      "seed": 42,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00001",
+      "seed": 43,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 22,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00002",
+      "seed": 44,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00003",
+      "seed": 45,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00004",
+      "seed": 46,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00005",
+      "seed": 47,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00006",
+      "seed": 48,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00007",
+      "seed": 49,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00008",
+      "seed": 50,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00009",
+      "seed": 51,
+      "instruction": "move the red cube to the green target",
+      "steps": 1,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00010",
+      "seed": 52,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00011",
+      "seed": 53,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00012",
+      "seed": 54,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00013",
+      "seed": 55,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00014",
+      "seed": 56,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00015",
+      "seed": 57,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00016",
+      "seed": 58,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00017",
+      "seed": 59,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00018",
+      "seed": 60,
+      "instruction": "move the red cube to the green target",
+      "steps": 22,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00019",
+      "seed": 61,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00020",
+      "seed": 62,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00021",
+      "seed": 63,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00022",
+      "seed": 64,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 18,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00023",
+      "seed": 65,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00024",
+      "seed": 66,
+      "instruction": "move the red cube to the green target",
+      "steps": 1,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00025",
+      "seed": 67,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00026",
+      "seed": 68,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00027",
+      "seed": 69,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00028",
+      "seed": 70,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00029",
+      "seed": 71,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00030",
+      "seed": 72,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00031",
+      "seed": 73,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00032",
+      "seed": 74,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00033",
+      "seed": 75,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00034",
+      "seed": 76,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00035",
+      "seed": 77,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00036",
+      "seed": 78,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00037",
+      "seed": 79,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00038",
+      "seed": 80,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00039",
+      "seed": 81,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00040",
+      "seed": 82,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 1,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00041",
+      "seed": 83,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00042",
+      "seed": 84,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00043",
+      "seed": 85,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00044",
+      "seed": 86,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00045",
+      "seed": 87,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00046",
+      "seed": 88,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00047",
+      "seed": 89,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00048",
+      "seed": 90,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00049",
+      "seed": 91,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00050",
+      "seed": 92,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00051",
+      "seed": 93,
+      "instruction": "move the red cube to the green target",
+      "steps": 18,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00052",
+      "seed": 94,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00053",
+      "seed": 95,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00054",
+      "seed": 96,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00055",
+      "seed": 97,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00056",
+      "seed": 98,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00057",
+      "seed": 99,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00058",
+      "seed": 100,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00059",
+      "seed": 101,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00060",
+      "seed": 102,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00061",
+      "seed": 103,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00062",
+      "seed": 104,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00063",
+      "seed": 105,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00064",
+      "seed": 106,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00065",
+      "seed": 107,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00066",
+      "seed": 108,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00067",
+      "seed": 109,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00068",
+      "seed": 110,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00069",
+      "seed": 111,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00070",
+      "seed": 112,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00071",
+      "seed": 113,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00072",
+      "seed": 114,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00073",
+      "seed": 115,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00074",
+      "seed": 116,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00075",
+      "seed": 117,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00076",
+      "seed": 118,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 22,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00077",
+      "seed": 119,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00078",
+      "seed": 120,
+      "instruction": "move the red cube to the green target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00079",
+      "seed": 121,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00080",
+      "seed": 122,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00081",
+      "seed": 123,
+      "instruction": "move the red cube to the green target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00082",
+      "seed": 124,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00083",
+      "seed": 125,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00084",
+      "seed": 126,
+      "instruction": "move the red cube to the green target",
+      "steps": 21,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00085",
+      "seed": 127,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00086",
+      "seed": 128,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00087",
+      "seed": 129,
+      "instruction": "move the red cube to the green target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00088",
+      "seed": 130,
+      "instruction": "pick the cube and place it on the goal region",
+      "steps": 19,
+      "success": true,
+      "failure_category": "none"
+    },
+    {
+      "episode_id": "episode_00089",
+      "seed": 131,
+      "instruction": "grasp the red block and set it down on the target",
+      "steps": 20,
+      "success": true,
+      "failure_category": "none"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-09T12:11:09.960461+00:00",
+  "improvement_hypothesis": "Add image jitter augmentation (std=0.03), lower LR to 8e-4, 12 epochs",
+  "primary_run": {
+    "checkpoint": "artifacts/checkpoints/best.pt",
+    "trained_success_rate": 0.05,
+    "action_mse": 0.07853962481021881
+  },
+  "improved_run": {
+    "checkpoint": "artifacts/checkpoints_improved/best.pt",
+    "trained_success_rate": 0.0,
+    "action_mse": 0.12735852599143982
+  },
+  "delta": {
+    "success_rate": -0.05,
+    "action_mse": 0.04881890118122101
+  },
+  "result": "regressed"
+}

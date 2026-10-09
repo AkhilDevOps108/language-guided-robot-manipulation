@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-10-09T13:23:14.074201+00:00",
+  "most_common_failures": [
+    [
+      "baseline::grasp_failure",
+      22
+    ],
+    [
+      "baseline::placement_failure",
+      7
+    ],
+    [
+      "grasp_failure",
+      4
+    ]
+  ],
+  "trained_failure_categories": {
+    "grasp_failure": 4
+  },
+  "baseline_failure_categories": {
+    "grasp_failure": 22,
+    "placement_failure": 7
+  },
+  "observed_limitations": [
+    "Policy relies on imitation from scripted expert and may fail in unseen cube placements.",
+    "Language conditioning uses learned token embeddings, not a pretrained language model.",
+    "PyBullet fallback was used because ManiSkill dependency resolution failed in this environment."
+  ]
+}

@@ -13,16 +13,16 @@ install:
 	$(PIP) install -e .
 
 collect:
-	$(PYTHON) -m gripground.data.collect_demonstrations --output-dir artifacts/data --episodes 30
+	$(PYTHON) -m gripground.data.collect_demonstrations --output-dir artifacts/data --episodes 90 --max-steps 60
 
 validate:
 	$(PYTHON) -m gripground.data.validate_dataset --dataset-dir artifacts/data
 
 train:
-	$(PYTHON) -m gripground.training.train_policy --dataset-dir artifacts/data --output-dir artifacts/checkpoints --epochs 8
+	$(PYTHON) -m gripground.training.train_policy --dataset-dir artifacts/data --output-dir artifacts/checkpoints --epochs 50 --batch-size 64
 
 evaluate:
-	$(PYTHON) -m gripground.training.evaluate_policy --dataset-dir artifacts/data --checkpoint artifacts/checkpoints/best.pt --reports-dir reports
+	$(PYTHON) -m gripground.training.evaluate_policy --dataset-dir artifacts/data --checkpoint artifacts/checkpoints/best.pt --reports-dir reports --episodes 30
 
 report:
 	$(PYTHON) -m gripground.evaluation.generate_report --reports-dir reports

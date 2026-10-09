@@ -9,9 +9,5 @@ htmlcov/
 artifacts/mlruns/
 artifacts/checkpoints/
 artifacts/data/
-reports/*.png
-reports/*.json
-reports/*.md
-!reports/.gitkeep
 dist/
 build/

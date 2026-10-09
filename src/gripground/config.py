@@ -27,9 +27,9 @@ class DatasetConfig:
 @dataclass(slots=True)
 class TrainConfig:
     seed: int = 42
-    batch_size: int = 32
+    batch_size: int = 64
     learning_rate: float = 1e-3
-    epochs: int = 8
+    epochs: int = 50
     weight_decay: float = 1e-5
     output_dir: Path = Path("artifacts/checkpoints")
     hidden_dim: int = 128
@@ -39,7 +39,6 @@ class TrainConfig:
 
 @dataclass(slots=True)
 class EvalConfig:
-    episodes: int = 20
+    episodes: int = 30
     seed: int = 123
     reports_dir: Path = Path("reports")
-

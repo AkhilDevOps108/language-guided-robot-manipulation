@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -15,6 +17,8 @@ class PredictRequest(BaseModel):
             return value
         if len(value) != 12:
             raise ValueError("state must have 12 float values when provided")
+        if not all(math.isfinite(item) for item in value):
+            raise ValueError("state values must be finite")
         return value
 
 

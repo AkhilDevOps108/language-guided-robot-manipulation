@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-10-09T13:23:13.635435+00:00",
+  "configuration": {
+    "episodes": 30,
+    "seed": 123
+  },
+  "dataset_identifier": "30ece70f470ecc141c4951de9c6f7a637375c9908dea2183acf81853780470da",
+  "dataset_episode_count": 90,
+  "model_checkpoint": "artifacts/checkpoints/best.pt",
+  "training_method": "supervised_behavior_cloning",
+  "evaluation_episodes": 30,
+  "baseline_policy": {
+    "episodes": 30,
+    "success_rate": 0.03333333333333333,
+    "failure_rate": 0.9666666666666667,
+    "avg_steps": 118.03333333333333,
+    "avg_inference_latency_ms": 0.05323710879455457,
+    "failure_categories": {
+      "grasp_failure": 22,
+      "placement_failure": 7
+    }
+  },
+  "trained_policy": {
+    "episodes": 30,
+    "success_rate": 0.8666666666666667,
+    "failure_rate": 0.13333333333333333,
+    "avg_steps": 32.833333333333336,
+    "avg_inference_latency_ms": 3.0218667857192782,
+    "failure_categories": {
+      "grasp_failure": 4
+    }
+  },
+  "action_prediction_mse_on_test_split": 0.03593674302101135,
+  "failed_trajectory_count": 33,
+  "failed_trajectories_path": "reports/safety_trial/failed_trajectories.json",
+  "known_limitations": [
+    "Action-space model is continuous and clipped in [-1, 1].",
+    "Evaluation uses a single simulated task family and not physical robot deployment."
+  ]
+}

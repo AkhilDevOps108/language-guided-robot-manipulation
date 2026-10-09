@@ -4,6 +4,18 @@ GripGround is a simulation-first portfolio project that implements an end-to-end
 data collection, dataset validation, language-conditioned behavior cloning, baseline vs trained evaluation,
 failure analysis, MLflow tracking, and FastAPI serving.
 
+## Quick start
+
+With dependencies installed, run the complete collection, validation, training, evaluation, and report
+pipeline with:
+
+```bash
+PYTHON=.venv/bin/python bash scripts/run_full_pipeline.sh
+```
+
+Run the automated tests with `.venv/bin/python -m pytest -q`. Generated datasets, checkpoints, and MLflow
+tracking data are stored under `artifacts/`; experiment reports and plots are written to `reports/`.
+
 ## Problem statement
 
 Given a camera observation, robot state, and natural language instruction, predict an action for a pick-and-place task:
@@ -12,11 +24,12 @@ move a red cube to a green target region on a tabletop.
 ## Simulator and model choice
 
 - **Target simulator from the original plan:** ManiSkill
-- **What was implemented in this environment:** PyBullet fallback with a real physics scene and Panda robot
+- **What was implemented in this environment:** a PyBullet physics scene with a visible Cartesian parallel-jaw gripper, dynamic cube, tabletop, gravity, camera observations, and grasp constraints
 - **Why fallback was needed:** in this VM, `mani_skill==3.0.1` requires `mplib==0.1.1`, which is unavailable for this Python setup, so ManiSkill installation fails.
 
 The policy is a **trainable imitation-learning model** (behavior cloning), not a pretrained VLA model.
 Language conditioning uses a learned token embedding (not a pretrained LLM encoder).
+The gripper moves kinematically in bounded Cartesian increments; object motion, gravity, contact with the table, and the grasp/release constraint are simulated by PyBullet. This is not torque-level control of a full articulated arm.
 
 ## Architecture
 
@@ -35,29 +48,30 @@ flowchart LR
 
 ## Project structure
 
-- [src/gripground/](/home/akhil/language-guided-robot-manipulation/src/gripground/)
-  - [config.py](/home/akhil/language-guided-robot-manipulation/src/gripground/config.py)
-  - [env/task_environment.py](/home/akhil/language-guided-robot-manipulation/src/gripground/env/task_environment.py)
-  - [env/simulator_adapter.py](/home/akhil/language-guided-robot-manipulation/src/gripground/env/simulator_adapter.py)
-  - [data/collect_demonstrations.py](/home/akhil/language-guided-robot-manipulation/src/gripground/data/collect_demonstrations.py)
-  - [data/dataset.py](/home/akhil/language-guided-robot-manipulation/src/gripground/data/dataset.py)
-  - [data/validate_dataset.py](/home/akhil/language-guided-robot-manipulation/src/gripground/data/validate_dataset.py)
-  - [models/policy.py](/home/akhil/language-guided-robot-manipulation/src/gripground/models/policy.py)
-  - [models/visual_encoder.py](/home/akhil/language-guided-robot-manipulation/src/gripground/models/visual_encoder.py)
-  - [models/language_encoder.py](/home/akhil/language-guided-robot-manipulation/src/gripground/models/language_encoder.py)
-  - [training/train_policy.py](/home/akhil/language-guided-robot-manipulation/src/gripground/training/train_policy.py)
-  - [training/evaluate_policy.py](/home/akhil/language-guided-robot-manipulation/src/gripground/training/evaluate_policy.py)
-  - [evaluation/metrics.py](/home/akhil/language-guided-robot-manipulation/src/gripground/evaluation/metrics.py)
-  - [evaluation/error_analysis.py](/home/akhil/language-guided-robot-manipulation/src/gripground/evaluation/error_analysis.py)
-  - [evaluation/generate_report.py](/home/akhil/language-guided-robot-manipulation/src/gripground/evaluation/generate_report.py)
-  - [tracking/mlflow_utils.py](/home/akhil/language-guided-robot-manipulation/src/gripground/tracking/mlflow_utils.py)
-  - [serving/app.py](/home/akhil/language-guided-robot-manipulation/src/gripground/serving/app.py)
-  - [serving/schemas.py](/home/akhil/language-guided-robot-manipulation/src/gripground/serving/schemas.py)
-  - [utils/reproducibility.py](/home/akhil/language-guided-robot-manipulation/src/gripground/utils/reproducibility.py)
-  - [utils/logging_utils.py](/home/akhil/language-guided-robot-manipulation/src/gripground/utils/logging_utils.py)
-- [tests/](/home/akhil/language-guided-robot-manipulation/tests/)
-- [configs/defaults.json](/home/akhil/language-guided-robot-manipulation/configs/defaults.json)
-- [scripts/run_full_pipeline.sh](/home/akhil/language-guided-robot-manipulation/scripts/run_full_pipeline.sh)
+- [src/gripground/](src/gripground/)
+  - [config.py](src/gripground/config.py)
+  - [env/task_environment.py](src/gripground/env/task_environment.py)
+  - [env/simulator_adapter.py](src/gripground/env/simulator_adapter.py)
+  - [data/collect_demonstrations.py](src/gripground/data/collect_demonstrations.py)
+  - [data/dataset.py](src/gripground/data/dataset.py)
+  - [data/validate_dataset.py](src/gripground/data/validate_dataset.py)
+  - [models/policy.py](src/gripground/models/policy.py)
+  - [models/visual_encoder.py](src/gripground/models/visual_encoder.py)
+  - [models/language_encoder.py](src/gripground/models/language_encoder.py)
+  - [training/train_policy.py](src/gripground/training/train_policy.py)
+  - [training/evaluate_policy.py](src/gripground/training/evaluate_policy.py)
+  - [evaluation/metrics.py](src/gripground/evaluation/metrics.py)
+  - [evaluation/error_analysis.py](src/gripground/evaluation/error_analysis.py)
+  - [evaluation/generate_report.py](src/gripground/evaluation/generate_report.py)
+  - [evaluation/compare_safety_trials.py](src/gripground/evaluation/compare_safety_trials.py)
+  - [tracking/mlflow_utils.py](src/gripground/tracking/mlflow_utils.py)
+  - [serving/app.py](src/gripground/serving/app.py)
+  - [serving/schemas.py](src/gripground/serving/schemas.py)
+  - [utils/reproducibility.py](src/gripground/utils/reproducibility.py)
+  - [utils/logging_utils.py](src/gripground/utils/logging_utils.py)
+- [tests/](tests/)
+- [configs/defaults.json](configs/defaults.json)
+- [scripts/run_full_pipeline.sh](scripts/run_full_pipeline.sh)
 
 ## Environment setup
 
@@ -74,7 +88,7 @@ python3 -m venv .venv
 Collect demonstrations:
 
 ```bash
-.venv/bin/python -m gripground.data.collect_demonstrations --output-dir artifacts/data --episodes 30 --seed 42 --max-steps 120
+.venv/bin/python -m gripground.data.collect_demonstrations --output-dir artifacts/data --episodes 90 --seed 42 --max-steps 60
 ```
 
 Validate dataset:
@@ -85,25 +99,25 @@ Validate dataset:
 
 Each episode NPZ stores:
 - `images`: `uint8 [T,64,64,3]`
-- `states`: `float32 [T,11]`
+- `states`: `float32 [T,12]` (end-effector, cube, target positions and gripper/attachment/task-phase state)
 - `actions`: `float32 [T,4]` continuous clipped in `[-1, 1]`
 - `instruction`: task text
 - `rewards`, `dones`, `success`, `failure_category`, `seed`
 
-Manifest: [artifacts/data/dataset_manifest.json](/home/akhil/language-guided-robot-manipulation/artifacts/data/dataset_manifest.json)
+Manifest: `artifacts/data/dataset_manifest.json`
 
 ## Training and evaluation
 
 Train:
 
 ```bash
-.venv/bin/python -m gripground.training.train_policy --dataset-dir artifacts/data --output-dir artifacts/checkpoints --epochs 8 --batch-size 32 --learning-rate 0.001 --seed 42
+.venv/bin/python -m gripground.training.train_policy --dataset-dir artifacts/data --output-dir artifacts/checkpoints --epochs 50 --batch-size 64 --learning-rate 0.001 --seed 42
 ```
 
 Evaluate baseline vs trained:
 
 ```bash
-.venv/bin/python -m gripground.training.evaluate_policy --dataset-dir artifacts/data --checkpoint artifacts/checkpoints/best.pt --reports-dir reports --episodes 20 --seed 123
+.venv/bin/python -m gripground.training.evaluate_policy --dataset-dir artifacts/data --checkpoint artifacts/checkpoints/best.pt --reports-dir reports --episodes 30 --seed 123
 ```
 
 Generate final markdown report:
@@ -114,14 +128,23 @@ Generate final markdown report:
 
 ## Iterative improvement experiment
 
-Hypothesis: add image jitter augmentation and train longer.
+An earlier exploratory image-jitter experiment (12 epochs, jitter std 0.03) is recorded in
+`reports/improvement_summary.json`. It regressed on that run's small evaluation set and predates the final
+environment and training setup, so its results should not be compared with the final benchmark above.
+The following commands rerun that experiment configuration; results may vary:
 
 ```bash
 .venv/bin/python -m gripground.training.train_policy --dataset-dir artifacts/data --output-dir artifacts/checkpoints_improved --epochs 12 --batch-size 32 --learning-rate 0.0008 --seed 42 --image-jitter 0.03
 .venv/bin/python -m gripground.training.evaluate_policy --dataset-dir artifacts/data --checkpoint artifacts/checkpoints_improved/best.pt --reports-dir reports/improvement --episodes 20 --seed 123
 ```
 
-Comparison report: [reports/improvement_summary.json](/home/akhil/language-guided-robot-manipulation/reports/improvement_summary.json)
+The safety-interlock trials recorded 86.7% and 100% success, respectively, on 30 episodes each. These are descriptive results, **not a controlled causal comparison**: the dataset hashes differ, and the reports do not fingerprint checkpoint weights. Recreate the metadata comparison with:
+
+```bash
+.venv/bin/python -m gripground.evaluation.compare_safety_trials
+```
+
+Output: `reports/safety_interlock_comparison.json`.
 
 ## MLflow usage
 
@@ -149,7 +172,7 @@ Endpoints:
 Example `predict` payload fields:
 - `instruction: string`
 - `image_base64: base64-encoded RGB image`
-- `state: optional 11-float vector`
+- `state: optional 12-float vector`
 
 ## Docker
 
@@ -173,21 +196,28 @@ docker compose up --build
 
 ## Measured results (from actual runs)
 
-From [reports/evaluation_summary.json](/home/akhil/language-guided-robot-manipulation/reports/evaluation_summary.json):
+From `reports/evaluation_summary.json`:
 
-- Evaluation episodes: 20
-- Baseline success rate: 0.05
-- Trained success rate: 0.05
-- Action prediction MSE on test split: 0.0785
-- Dominant failure category: timeout
+- Demonstration episodes: 90/90 expert successes
+- Evaluation episodes: 30 (same evaluation seeds for baseline and trained policy)
+- Random-action baseline success rate: 0.033
+- Trained policy success rate: 0.933 (28/30)
+- Trained average episode length: 26.97 steps
+- Trained average inference latency: 2.01 ms per action
+- Action prediction MSE on episode-held-out test split: 0.03797
+- Trained-policy failures: 2 grasp failures
 
-Plot: [reports/baseline_vs_trained.png](/home/akhil/language-guided-robot-manipulation/reports/baseline_vs_trained.png)
+Plot: `reports/baseline_vs_trained.png`
 
-Failure analysis: [reports/failure_analysis.json](/home/akhil/language-guided-robot-manipulation/reports/failure_analysis.json)
+Failure analysis: `reports/failure_analysis.json`
+
+Full generated experiment report: `reports/experiment_report.md`.
+
+These are measured results from one task family and 30 evaluation seeds, not a guarantee of performance on unseen language, scenes, or physical robots. Re-running the pipeline retrains from fresh simulation data; small metric changes are expected.
 
 ## What I implemented
 
-- Real PyBullet pick-and-place simulation with robot, cube, target, action execution, reset seeding, and success/failure detection.
+- Real PyBullet pick-and-place simulation with a Cartesian gripper, dynamic cube, target, camera, reset seeding, and success/failure detection.
 - Demonstration collection pipeline with scripted expert trajectories and compressed episode storage.
 - Dataset validation for shape checks, NaN/inf checks, action bounds, duplicate IDs, and split leakage.
 - Language-conditioned imitation-learning policy (vision encoder + learned instruction embedding + state branch).
@@ -196,12 +226,14 @@ Failure analysis: [reports/failure_analysis.json](/home/akhil/language-guided-ro
 - FastAPI inference API with startup checkpoint loading and request validation.
 - Docker and docker-compose packaging for inference deployment.
 - Automated test suite for environment, dataset, model I/O, metrics, reproducibility, checkpoints, and API paths.
+- Reproducible Markdown experiment-report and safety-trial comparison generators.
 
 ## Limitations and future improvements
 
-- The current scripted expert has low task success, limiting policy quality.
+- The gripper is kinematically controlled, not torque controlled; arm dynamics are not modeled.
 - Only one task family is evaluated.
 - Language encoder is lightweight and learned from task text, not pretrained semantics.
+- The evaluation set contains 30 seeds for this task family; it is a prototype benchmark rather than broad generalization evidence.
 - No physical robot validation.
 
 ## Upstream references and licenses
@@ -213,7 +245,7 @@ Failure analysis: [reports/failure_analysis.json](/home/akhil/language-guided-ro
 - FastAPI: https://fastapi.tiangolo.com
 - ManiSkill installation docs (checked during setup): https://maniskill.readthedocs.io/en/latest/user_guide/getting_started/installation.html
 
-All external libraries remain under their original licenses; project code in this repository is under [LICENSE](/home/akhil/language-guided-robot-manipulation/LICENSE).
+All external libraries remain under their original licenses; project code in this repository is under [LICENSE](LICENSE).
 
 ## Code ownership distinction
 

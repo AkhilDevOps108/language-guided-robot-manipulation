@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.metadata
 import json
 from dataclasses import asdict
 from datetime import datetime, timezone
@@ -77,8 +78,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset-dir", type=Path, default=Path("artifacts/data"))
     parser.add_argument("--output-dir", type=Path, default=Path("artifacts/checkpoints"))
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--epochs", type=int, default=8)
-    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--hidden-dim", type=int, default=128)
     parser.add_argument("--mlflow-uri", type=str, default="file:./artifacts/mlruns")
@@ -106,6 +107,7 @@ def main() -> None:
 
     train_transitions = load_split_transitions(args.dataset_dir, "train")
     val_transitions = load_split_transitions(args.dataset_dir, "val")
+    manifest = read_manifest(args.dataset_dir)
     train_loader = DataLoader(DemonstrationDataset(train_transitions), batch_size=cfg.batch_size, shuffle=True, collate_fn=collate)
     val_loader = DataLoader(DemonstrationDataset(val_transitions), batch_size=cfg.batch_size, shuffle=False, collate_fn=collate)
 
@@ -115,7 +117,7 @@ def main() -> None:
     best_val = float("inf")
     train_history = []
 
-    with start_run(cfg.mlflow_tracking_uri, cfg.mlflow_experiment, "train_policy"):
+    with start_run(cfg.mlflow_tracking_uri, cfg.mlflow_experiment, "train_policy") as run:
         mlflow.log_params(
             {
                 "seed": cfg.seed,
@@ -125,8 +127,21 @@ def main() -> None:
                 "hidden_dim": cfg.hidden_dim,
                 "device": str(device),
                 "image_jitter": args.image_jitter,
+                "dataset_id": manifest["dataset_hash"],
+                "dataset_episodes": manifest["episode_count"],
+                "training_method": "supervised_behavior_cloning",
+                "optimizer": "AdamW",
+                "model_architecture": "CNN+learned-token-embedding+relative-state-MLP",
             }
         )
+        dependency_versions = {}
+        for distribution in ("gripground", "torch", "numpy", "pybullet", "gymnasium", "mlflow"):
+            try:
+                dependency_versions[distribution] = importlib.metadata.version(distribution)
+            except importlib.metadata.PackageNotFoundError:
+                dependency_versions[distribution] = "not-installed"
+        log_dict_artifact(manifest, "dataset_manifest.json")
+        log_dict_artifact(dependency_versions, "dependency_versions.json")
         try:
             for epoch in range(1, cfg.epochs + 1):
                 train_loss = run_epoch(
@@ -149,9 +164,9 @@ def main() -> None:
             log_checkpoint(interrupted)
             raise
 
-        manifest = read_manifest(args.dataset_dir)
         summary = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
+            "mlflow_run_id": run.info.run_id,
             "dataset_identifier": manifest["dataset_hash"],
             "dataset_episodes": manifest["episode_count"],
             "model_type": "language_conditioned_behavior_cloning",
@@ -160,6 +175,7 @@ def main() -> None:
             "training_method": "supervised_behavior_cloning",
             "epochs": cfg.epochs,
             "image_jitter": args.image_jitter,
+            "dependency_versions": dependency_versions,
             "history": train_history,
             "best_val_loss": best_val,
             "known_limitations": [
