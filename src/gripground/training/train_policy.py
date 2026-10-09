@@ -62,7 +62,7 @@ def save_checkpoint(path: Path, model: LanguageConditionedPolicy, cfg: TrainConf
     payload = {
         "epoch": epoch,
         "val_loss": val_loss,
-        "state_dim": 11,
+        "state_dim": 12,
         "hidden_dim": cfg.hidden_dim,
         "action_dim": 4,
         "model_state_dict": model.state_dict(),

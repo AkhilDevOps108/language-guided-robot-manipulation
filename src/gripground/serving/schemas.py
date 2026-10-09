@@ -13,8 +13,8 @@ class PredictRequest(BaseModel):
     def validate_state(cls, value: list[float] | None) -> list[float] | None:
         if value is None:
             return value
-        if len(value) != 11:
-            raise ValueError("state must have 11 float values when provided")
+        if len(value) != 12:
+            raise ValueError("state must have 12 float values when provided")
         return value
 
 
@@ -22,4 +22,3 @@ class PredictResponse(BaseModel):
     predicted_action: list[float]
     model_version: str
     inference_latency_ms: float
-

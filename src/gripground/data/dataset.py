@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -14,7 +15,8 @@ def tokenize_instruction(text: str, vocab_size: int = 128, max_tokens: int = 16)
     tokens = text.lower().split()
     ids = []
     for tok in tokens[:max_tokens]:
-        ids.append((hash(tok) % (vocab_size - 1)) + 1)
+        token_hash = hashlib.blake2b(tok.encode("utf-8"), digest_size=8).digest()
+        ids.append((int.from_bytes(token_hash, "little") % (vocab_size - 1)) + 1)
     if len(ids) < max_tokens:
         ids.extend([0] * (max_tokens - len(ids)))
     return np.asarray(ids, dtype=np.int64)
@@ -79,4 +81,3 @@ def load_split_transitions(dataset_dir: Path, split: str) -> list[dict[str, Any]
                 }
             )
     return transitions
-

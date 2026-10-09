@@ -27,7 +27,7 @@ def _make_real_checkpoint(path: Path) -> None:
     for _ in range(2):
         image = torch.rand(4, 3, 64, 64)
         tokens = torch.randint(0, 16, (4, 16))
-        state = torch.rand(4, 11)
+        state = torch.rand(4, 12)
         target = torch.rand(4, 4) * 2 - 1
         pred = model(image, tokens, state)
         loss = ((pred - target) ** 2).mean()
@@ -53,7 +53,7 @@ def test_api_success_and_validation(tmp_path: Path, monkeypatch: pytest.MonkeyPa
             json={
                 "instruction": "move cube to target",
                 "image_base64": _image_payload(),
-                "state": [0.0] * 11,
+                "state": [0.0] * 12,
             },
         )
         assert response.status_code == 200
@@ -72,4 +72,3 @@ def test_api_missing_model(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     with pytest.raises(RuntimeError):
         with client:
             client.get("/health")
-

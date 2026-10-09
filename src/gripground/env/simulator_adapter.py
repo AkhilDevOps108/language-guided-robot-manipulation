@@ -1,19 +1,21 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any
+from typing import Any, NamedTuple
 
 import numpy as np
 
 
-@dataclass(slots=True)
-class StepResult:
+class StepResult(NamedTuple):
     observation: dict[str, Any]
     reward: float
-    done: bool
+    terminated: bool
     truncated: bool
     info: dict[str, Any]
+
+    @property
+    def done(self) -> bool:
+        return self.terminated
 
 
 class SimulatorAdapter(ABC):
@@ -32,4 +34,3 @@ class SimulatorAdapter(ABC):
     @abstractmethod
     def close(self) -> None:
         raise NotImplementedError
-

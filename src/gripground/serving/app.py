@@ -63,7 +63,7 @@ def predict(payload: PredictRequest) -> PredictResponse:
     if _LOADED is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
     image = _decode_image(payload.image_base64)
-    state = np.asarray(payload.state if payload.state is not None else [0.0] * 11, dtype=np.float32)
+    state = np.asarray(payload.state if payload.state is not None else [0.0] * 12, dtype=np.float32)
     instruction_tokens = tokenize_instruction(payload.instruction)
     t0 = time.perf_counter()
     action = _LOADED.model.predict(image, instruction_tokens, state, _LOADED.device)
@@ -75,4 +75,3 @@ def predict(payload: PredictRequest) -> PredictResponse:
         model_version="0.1.0",
         inference_latency_ms=latency_ms,
     )
-

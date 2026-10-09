@@ -12,7 +12,7 @@ def test_checkpoint_save_load(tmp_path: Path) -> None:
     opt = torch.optim.Adam(model.parameters(), lr=1e-3)
     image = torch.rand(2, 3, 64, 64)
     tokens = torch.randint(0, 16, (2, 16))
-    state = torch.rand(2, 11)
+    state = torch.rand(2, 12)
     target = torch.rand(2, 4) * 2 - 1
     pred = model(image, tokens, state)
     loss = ((pred - target) ** 2).mean()
@@ -23,4 +23,3 @@ def test_checkpoint_save_load(tmp_path: Path) -> None:
     save_checkpoint(ckpt, model, TrainConfig(output_dir=tmp_path), epoch=1, val_loss=0.1)
     loaded = load_policy_checkpoint(str(ckpt), torch.device("cpu"))
     assert isinstance(loaded.model, LanguageConditionedPolicy)
-

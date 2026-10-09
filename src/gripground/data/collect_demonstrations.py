@@ -23,54 +23,39 @@ INSTRUCTION_POOL = [
 ]
 
 
-def expert_action(observation: dict[str, Any], stage: int) -> tuple[np.ndarray, int]:
+def expert_action(observation: dict[str, Any], stage: int | None = None) -> tuple[np.ndarray, int]:
     ee = observation["ee_pos"]
     cube = observation["cube_pos"]
     target = observation["target_pos"]
     action = np.zeros(4, dtype=np.float32)
-    if stage == 0:
-        goal = cube + np.array([0.0, 0.0, 0.12], dtype=np.float32)
-        delta = goal - ee
-        action[:3] = np.clip(delta / 0.03, -1.0, 1.0)
-        action[3] = -1
-        if np.linalg.norm(delta) < 0.03:
-            stage = 1
-    elif stage == 1:
+    attached = bool(observation["state"][-2] > 0.5)
+    phase = int(round(float(observation["state"][-1]) * 3))
+    if phase == 0 and not attached:
         goal = cube + np.array([0.0, 0.0, 0.035], dtype=np.float32)
         delta = goal - ee
         action[:3] = np.clip(delta / 0.03, -1.0, 1.0)
-        action[3] = -1
-        if np.linalg.norm(delta) < 0.025:
-            stage = 2
-    elif stage == 2:
-        action[3] = 1
-        if np.linalg.norm(ee - cube) < 0.05:
-            stage = 3
-    elif stage == 3:
-        goal = cube + np.array([0.0, 0.0, 0.18], dtype=np.float32)
+        if np.linalg.norm(delta) <= 0.045:
+            action[3] = 1.0
+        else:
+            action[3] = -1.0
+    elif phase == 1 and attached:
+        action[3] = 1.0
+        goal = np.array([ee[0], ee[1], 0.84], dtype=np.float32)
         delta = goal - ee
         action[:3] = np.clip(delta / 0.03, -1.0, 1.0)
-        action[3] = 1
-        if np.linalg.norm(delta) < 0.03:
-            stage = 4
-    elif stage == 4:
-        goal = target + np.array([0.0, 0.0, 0.16], dtype=np.float32)
+    elif phase == 2 and attached:
+        action[3] = 1.0
+        if np.linalg.norm((target - ee)[:2]) > 0.025:
+            goal = np.array([target[0], target[1], 0.84], dtype=np.float32)
+        else:
+            goal = target + np.array([0.0, 0.0, 0.055], dtype=np.float32)
+            if np.linalg.norm(goal - ee) <= 0.035:
+                action[3] = -1.0
         delta = goal - ee
         action[:3] = np.clip(delta / 0.03, -1.0, 1.0)
-        action[3] = 1
-        if np.linalg.norm(delta) < 0.04:
-            stage = 5
-    elif stage == 5:
-        goal = target + np.array([0.0, 0.0, 0.07], dtype=np.float32)
-        delta = goal - ee
-        action[:3] = np.clip(delta / 0.03, -1.0, 1.0)
-        action[3] = 1
-        if np.linalg.norm(delta) < 0.03:
-            stage = 6
     else:
-        action[3] = -1
-        action[2] = 0.5
-    return action, stage
+        action[3] = -1.0
+    return action, 0
 
 
 def split_episode_ids(episode_ids: list[str], cfg: DatasetConfig) -> dict[str, list[str]]:
@@ -108,11 +93,10 @@ def collect_dataset(output_dir: Path, episodes: int, seed: int, max_steps: int) 
         actions: list[np.ndarray] = []
         rewards: list[float] = []
         dones: list[bool] = []
-        stage = 0
         success = False
         failure_category = "timeout"
         for _ in range(max_steps):
-            act, stage = expert_action(obs, stage)
+            act, _ = expert_action(obs)
             result = env.step(act)
             images.append(obs["rgb"])
             states.append(obs["state"])
@@ -192,4 +176,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

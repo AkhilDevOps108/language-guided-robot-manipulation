@@ -12,13 +12,13 @@ from gripground.models.visual_encoder import VisualEncoder
 
 
 class LanguageConditionedPolicy(nn.Module):
-    def __init__(self, state_dim: int = 11, hidden_dim: int = 128, action_dim: int = 4):
+    def __init__(self, state_dim: int = 12, hidden_dim: int = 128, action_dim: int = 4):
         super().__init__()
-        self.visual = VisualEncoder(output_dim=hidden_dim)
-        self.language = LanguageEncoder(output_dim=hidden_dim // 2)
+        self.visual = VisualEncoder(output_dim=hidden_dim // 4)
+        self.language = LanguageEncoder(output_dim=hidden_dim // 8)
         self.state_proj = nn.Sequential(nn.Linear(state_dim, hidden_dim // 2), nn.ReLU())
         self.head = nn.Sequential(
-            nn.Linear(hidden_dim + hidden_dim // 2 + hidden_dim // 2, hidden_dim),
+            nn.Linear(hidden_dim // 4 + hidden_dim // 8 + hidden_dim // 2, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, action_dim),
             nn.Tanh(),
@@ -27,7 +27,16 @@ class LanguageConditionedPolicy(nn.Module):
     def forward(self, image: torch.Tensor, instruction_tokens: torch.Tensor, state: torch.Tensor) -> torch.Tensor:
         v = self.visual(image)
         l = self.language(instruction_tokens)
-        s = self.state_proj(state)
+        relative_state = torch.cat(
+            [
+                state[:, 3:6] - state[:, :3],
+                state[:, 6:9] - state[:, :3],
+                state[:, 6:9] - state[:, 3:6],
+                state[:, 9:],
+            ],
+            dim=1,
+        )
+        s = self.state_proj(relative_state)
         return self.head(torch.cat([v, l, s], dim=1))
 
     @torch.no_grad()
@@ -50,7 +59,7 @@ class LoadedPolicy:
 def load_policy_checkpoint(path: str, device: torch.device) -> LoadedPolicy:
     payload = torch.load(path, map_location=device, weights_only=True)
     model = LanguageConditionedPolicy(
-        state_dim=payload.get("state_dim", 11),
+        state_dim=payload.get("state_dim", 12),
         hidden_dim=payload.get("hidden_dim", 128),
         action_dim=payload.get("action_dim", 4),
     ).to(device)
